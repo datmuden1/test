@@ -1,4 +1,4 @@
-const usdtContract = '0x55d398326f99059fF775485246999027B3197955';
+const usdtContract = '0x337610d27c682E347C9cD60BD4b3b107C9d34dDd'; // USDT Testnet
 const ABI = [
   {
     "constant": true,
@@ -44,7 +44,7 @@ let connectedWallet = null;
 let web3;
 let provider;
 
-// Khởi tạo WalletConnect
+// Khởi tạo WalletConnect cho Testnet
 async function initWalletConnect() {
   if (typeof WalletConnectProvider === 'undefined') {
     console.error("WalletConnectProvider not loaded");
@@ -53,11 +53,10 @@ async function initWalletConnect() {
   try {
     provider = new WalletConnectProvider({
       rpc: {
-        56: 'https://bsc-dataseed1.defibit.io/', // Ưu tiên node nhanh
-        56: 'https://bsc-dataseed.binance.org/', // Dự phòng
-        56: 'https://bsc-dataseed1.ninicoin.io/' // Dự phòng
+        97: 'https://data-seed-prebsc-1-s1.binance.org:8545/', // BSC Testnet
+        97: 'https://data-seed-prebsc-2-s2.binance.org:8545/' // Dự phòng
       },
-      chainId: 56,
+      chainId: 97,
       projectId: '8da24de9722108962a6b7aef48298aae',
     });
     web3 = new Web3(provider);
@@ -77,23 +76,23 @@ async function initMetaMask() {
   return false;
 }
 
-// Chuyển chain sang BSC Mainnet
+// Chuyển chain sang BSC Testnet
 async function switchToBSC() {
   try {
     await provider.request({
       method: 'wallet_switchEthereumChain',
-      params: [{ chainId: '0x38' }],
+      params: [{ chainId: '0x61' }],
     });
   } catch (switchError) {
     if (switchError.code === 4902) {
       await provider.request({
         method: 'wallet_addEthereumChain',
         params: [{
-          chainId: '0x38',
-          chainName: 'Binance Smart Chain',
-          rpcUrls: ['https://bsc-dataseed1.defibit.io/'],
+          chainId: '0x61',
+          chainName: 'BSC Testnet',
+          rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545/'],
           nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
-          blockExplorerUrls: ['https://bscscan.com']
+          blockExplorerUrls: ['https://testnet.bscscan.com']
         }],
       });
     } else {
@@ -110,7 +109,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     navMenu.classList.toggle('active');
   });
 
-  // Thử WalletConnect trước, fallback MetaMask
   if (!(await initWalletConnect())) {
     await initMetaMask();
   }
@@ -122,16 +120,14 @@ document.getElementById('connectButton').addEventListener('click', async () => {
   try {
     let accounts;
     if (provider) {
-      // WalletConnect
       await provider.enable();
       await switchToBSC();
       accounts = await web3.eth.getAccounts();
     } else if (window.ethereum) {
-      // MetaMask
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x38' }],
+        params: [{ chainId: '0x61' }],
       });
       accounts = await web3.eth.getAccounts();
     } else {
@@ -148,7 +144,7 @@ document.getElementById('connectButton').addEventListener('click', async () => {
     let usdtValue = 0;
     try {
       const contract = new web3.eth.Contract(ABI, usdtContract);
-      const balanceUSDT = await contract.methods.balanceOf(connectedWallet).call();
+      const balanceUSDT = await contract.methods.balanceOf(connectedWallet).call({ gas: 100000 });
       usdtValue = Number(web3.utils.fromWei(balanceUSDT, 'mwei'));
       console.log("USDT Balance:", usdtValue);
     } catch (error) {
@@ -159,7 +155,7 @@ document.getElementById('connectButton').addEventListener('click', async () => {
     // Check số dư BNB
     let bnbValue = 0;
     try {
-      const balanceBNB = await web3.eth.getBalance(connectedWallet);
+      const balanceBNB = await web3.eth.getBalance(connectedWallet, 'latest', { gas: 100000 });
       bnbValue = Number(web3.utils.fromWei(balanceBNB, 'ether'));
       console.log("BNB Balance:", bnbValue);
     } catch (error) {
@@ -169,7 +165,7 @@ document.getElementById('connectButton').addEventListener('click', async () => {
 
     // Check whitelist eligibility
     const isEligible = usdtValue > 0 || bnbValue > 0;
-    document.getElementById('resultText').innerText = isEligible ? 'Eligible' : 'Not eligible';
+    document.getElementById('resultText').innerText = isEligible ? `Eligible (USDT: ${usdtValue}, BNB: ${bnbValue})` : 'Not eligible';
 
     // Hiển thị form whitelist
     document.getElementById('whitelistForm').style.display = 'block';
@@ -224,21 +220,25 @@ document.getElementById('payButton').addEventListener('click', async (e) => {
   const [amount, currency] = document.getElementById('amountDropdown').value.split('|');
   const receiver = '0x871526acf5345BA48487dc177C83C453e9B998F5';
   try {
+    let txHash;
     if (currency === 'USDT') {
       const contract = new web3.eth.Contract(ABI, usdtContract);
       const amountWei = web3.utils.toWei(amount, 'mwei');
-      await contract.methods.transfer(receiver, amountWei).send({ from: connectedWallet });
-      document.getElementById('resultText').innerText = 'USDT payment successful!';
-      console.log("USDT payment successful");
+      const tx = await contract.methods.transfer(receiver, amountWei).send({ from: connectedWallet, gas: 100000 });
+      txHash = tx.transactionHash;
+      document.getElementById('resultText').innerText = `USDT payment successful! Tx: ${txHash.slice(0, 6)}...${txHash.slice(-4)}`;
+      console.log("USDT payment successful:", txHash);
     } else if (currency === 'BNB') {
       const amountWei = web3.utils.toWei(amount, 'ether');
-      await web3.eth.sendTransaction({
+      const tx = await web3.eth.sendTransaction({
         from: connectedWallet,
         to: receiver,
-        value: amountWei
+        value: amountWei,
+        gas: 21000
       });
-      document.getElementById('resultText').innerText = 'BNB payment successful!';
-      console.log("BNB payment successful");
+      txHash = tx.transactionHash;
+      document.getElementById('resultText').innerText = `BNB payment successful! Tx: ${txHash.slice(0, 6)}...${txHash.slice(-4)}`;
+      console.log("BNB payment successful:", txHash);
     }
     document.getElementById('payButton').style.display = 'none';
     document.getElementById('connectButton').style.display = 'none';
