@@ -1,0 +1,677 @@
+body {
+  margin: 0;
+  background: #000;
+  font-family: 'Montserrat', sans-serif;
+  color: #fff;
+  text-align: center;
+  overflow-x: hidden;
+}
+#marsVideo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  animation: float 10s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-50px); }
+}
+#particles-js {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 2;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  background: rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  animation: fadeIn 1s ease forwards 1s;
+}
+#logo {
+  width: 80px;
+  opacity: 0.5;
+  transition: transform 0.3s ease;
+}
+#logo:hover {
+  transform: scale(1.1);
+}
+.desktop-nav {
+  display: flex;
+  align-items: center;
+}
+.desktop-nav a {
+  color: #fff;
+  margin: 0 10px;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+.desktop-nav a:hover {
+  color: #FF4500;
+}
+.social-link {
+  display: flex;
+  align-items: center;
+}
+.social-icon {
+  width: 24px;
+  filter: brightness(0.8) contrast(1.2);
+  border: 1px solid #FF4500;
+  border-radius: 50%;
+  padding: 4px;
+  transition: transform 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease;
+}
+.social-icon:hover {
+  transform: scale(1.2);
+  filter: brightness(1.5) contrast(1.5);
+  box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+}
+.hamburger-menu {
+  display: none;
+}
+.hamburger-icon {
+  font-size: 24px;
+  color: #fff;
+  cursor: pointer;
+  padding: 5px;
+}
+#nav-menu {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 200px;
+  background: rgba(0, 0, 0, 0.95);
+  padding: 20px;
+  flex-direction: column;
+  z-index: 3;
+}
+#nav-menu.active {
+  display: flex;
+}
+#nav-menu a {
+  color: #fff;
+  margin: 10px 0;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+#nav-menu a:hover {
+  color: #FF4500;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 20px;
+  opacity: 0;
+  animation: fadeIn 1s ease forwards 2s;
+}
+.hero-content {
+  background: rgba(26, 26, 26, 0.9);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(255, 69, 0, 0.2);
+  width: 100%;
+  max-width: 500px;
+}
+.fomo {
+  margin-bottom: 20px;
+}
+#slotsText, #countdownText {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 8px 0;
+  color: #fff;
+}
+.wallet-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  margin: 10px 0;
+}
+#connectButton, #disconnectButton {
+  background: #FF4500;
+  color: #fff;
+  padding: 8px 20px;
+  border: 1px solid #FF6347;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 800;
+  transition: background 0.3s ease, transform 0.1s ease, opacity 0.3s ease;
+  opacity: 0;
+  animation: fadeInButton 1s ease forwards 1.5s;
+}
+#connectButton:hover, #disconnectButton:hover {
+  background: #E03E00;
+  transform: scale(1.05);
+}
+#disconnectButton {
+  background: #666;
+  border: 1px solid #999;
+}
+#disconnectButton:hover {
+  background: #555;
+}
+@keyframes fadeInButton {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+#walletText, #resultText {
+  font-size: 12px;
+  margin: 5px 0;
+  color: #ccc;
+}
+.fomo-message h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin: 8px 0;
+}
+.fomo-message p {
+  font-size: 16px;
+  color: #ccc;
+  margin: 5px 0;
+}
+.whitelist-note {
+  font-size: 14px;
+  color: #ccc;
+  margin-top: 8px;
+}
+.whitelist {
+  margin-top: 15px;
+}
+#payButton {
+  background: #FF4500;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 800;
+  transition: background 0.3s ease, transform 0.1s ease;
+  width: 100%;
+  margin-top: 10px;
+}
+#payButton:hover {
+  background: #E03E00;
+  transform: scale(1.05);
+}
+#payButton:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
+#whitelistForm {
+  margin: 15px 0;
+  padding: 10px;
+  border: 1px solid #FF6347;
+  border-radius: 5px;
+}
+#whitelistForm select {
+  padding: 8px;
+  margin-bottom: 10px;
+  background: #222;
+  color: #fff;
+  border: 1px solid #fff;
+  border-radius: 5px;
+  width: 100%;
+}
+#exclusiveMessage {
+  font-size: 16px;
+  line-height: 1.4;
+}
+.content-section {
+  position: relative;
+  z-index: 1;
+  padding: 40px 15px;
+  background: rgba(26, 26, 26, 0.7);
+  opacity: 0;
+  animation: fadeIn 1s ease forwards 2.5s;
+}
+.content-section h2 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  color: #fff;
+}
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.about-grid .content-item {
+  min-height: auto;
+}
+.about-image {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 10px;
+  border: 2px solid #FF4500;
+  margin: 0 auto 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.about-image:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 69, 0, 0.5);
+}
+.tokenomics-grid {
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.pie-chart {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: conic-gradient(
+    #FF4500 0% 35%,
+    #FF6347 35% 50%,
+    #FF7F50 50% 80%,
+    #FFA07A 80% 95%,
+    #FF8C00 95% 100%
+  );
+  margin: 0 auto;
+}
+.pie-chart::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  background: #1a1a1a;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.tokenomics-list {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+}
+.tokenomics-list li {
+  font-size: 16px;
+  color: #ccc;
+  margin: 10px 0;
+}
+.tokenomics-list ul {
+  padding-left: 15px;
+}
+.tokenomics-label {
+  font-weight: 700;
+  margin-right: 5px;
+}
+.tokenomics-label.sale { color: #FF4500; }
+.tokenomics-label.team { color: #FF6347; }
+.tokenomics-label.ecosystem { color: #FF7F50; }
+.tokenomics-label.liquidity { color: #FFA07A; }
+.tokenomics-label.marketing { color: #FF8C00; }
+.audit-grid {
+  grid-template-columns: 1fr;
+}
+.audit-card {
+  background: rgba(255, 69, 0, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  border-image: linear-gradient(to right, #FF4500, #FF6347) 1;
+  transition: transform 0.3s ease;
+}
+.audit-card:hover {
+  transform: scale(1.02);
+}
+.audit-score {
+  color: #FF4500;
+  font-weight: 700;
+  font-size: 20px;
+}
+.audit-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 15px;
+}
+.audit-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.audit-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.audit-image {
+  width: 100%;
+  max-width: 200px;
+  border-radius: 5px;
+  border: 1px solid #FF4500;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.audit-image:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+}
+.audit-link {
+  color: #FF4500;
+  font-size: 18px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  margin-top: 10px;
+}
+.audit-link:hover {
+  color: #fff;
+}
+.audit-link-text {
+  padding: 6px 12px;
+  border: 1px solid #FF4500;
+  border-radius: 5px;
+  transition: background 0.3s ease;
+}
+.audit-link:hover .audit-link-text {
+  background: #FF4500;
+  color: #fff;
+}
+.audit-logo-container {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+.audit-logo {
+  width: 120px;
+  transition: transform 0.3s ease;
+}
+.audit-logo:hover {
+  transform: scale(1.1);
+}
+.audit-badge {
+  background: #FF4500;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  margin-left: 8px;
+}
+.roadmap-timeline {
+  position: relative;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 15px 0;
+}
+.roadmap-timeline::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, #FF4500, #FF6347);
+}
+.roadmap-item {
+  position: relative;
+  margin: 30px 0;
+  display: flex;
+  align-items: flex-start;
+}
+.roadmap-dot {
+  width: 16px;
+  height: 16px;
+  background: #FF4500;
+  border-radius: 50%;
+  border: 2px solid #1a1a1a;
+  margin-right: 15px;
+  z-index: 1;
+}
+.roadmap-content {
+  background: rgba(255, 69, 0, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #FF6347;
+  flex: 1;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s ease forwards;
+}
+.roadmap-content h3 {
+  color: #FF4500;
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+.roadmap-content ul {
+  list-style: none;
+  padding: 0;
+}
+.roadmap-content li {
+  color: #ccc;
+  font-size: 14px;
+  margin: 4px 0;
+}
+@keyframes fadeInUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+.content-item {
+  background: rgba(255, 69, 0, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #FF6347;
+}
+.content-item p {
+  font-size: 16px;
+  color: #ccc;
+  line-height: 1.6;
+}
+.content-item a {
+  color: #FF4500;
+  font-size: 18px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.content-item a:hover {
+  color: #fff;
+}
+.content-item img {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 5px;
+}
+.content-item .audit-logo {
+  width: 120px;
+  margin-top: 10px;
+}
+#partners {
+  animation-delay: 3s;
+}
+.partner-logos {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.partner-item {
+  background: rgba(255, 69, 0, 0.1);
+  padding: 15px;
+  border-radius: 50%;
+  border: 1px solid #FF6347;
+}
+.partner-item img[src="star_capital.png"] {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px;
+  border-radius: 50%;
+}
+#partners img {
+  width: 150px;
+  filter: grayscale(50%);
+  transition: filter 0.3s ease;
+}
+#partners img:hover {
+  filter: grayscale(0);
+}
+#partners p {
+  color: #ccc;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+  header {
+    display: none; /* Hide default header */
+  }
+  .hamburger-menu {
+    display: block;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+  }
+  .hero {
+    padding: 20px 10px;
+    min-height: auto;
+  }
+  .hero-content {
+    padding: 15px;
+  }
+  #slotsText, #countdownText {
+    font-size: 20px;
+  }
+  .wallet-header {
+    margin: 8px 0;
+  }
+  #connectButton, #disconnectButton {
+    font-size: 14px;
+    padding: 8px 15px;
+    max-width: 180px;
+  }
+  #walletText, #resultText {
+    font-size: 10px;
+  }
+  .fomo-message h3 {
+    font-size: 18px;
+  }
+  .fomo-message p {
+    font-size: 14px;
+  }
+  .whitelist-note {
+    font-size: 12px;
+  }
+  #whitelistForm {
+    padding: 8px;
+  }
+  #whitelistForm select {
+    font-size: 14px;
+    padding: 6px;
+  }
+  #exclusiveMessage {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  #payButton {
+    font-size: 14px;
+    padding: 8px 15px;
+  }
+  .content-section {
+    padding: 30px 10px;
+  }
+  .content-section h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+  .about-image {
+    max-width: 250px;
+  }
+  .tokenomics-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .pie-chart {
+    width: 120px;
+    height: 120px;
+  }
+  .pie-chart::before {
+    width: 60px;
+    height: 60px;
+  }
+  .tokenomics-list {
+    text-align: center;
+  }
+  .tokenomics-list li {
+    font-size: 12px;
+    margin: 5px 0;
+  }
+  .tokenomics-list ul {
+    padding-left: 0;
+  }
+  .audit-card {
+    padding: 15px;
+  }
+  .audit-score {
+    font-size: 18px;
+  }
+  .audit-image {
+    max-width: 150px;
+  }
+  .audit-logo {
+    width: 100px;
+  }
+  .audit-badge {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+  .roadmap-timeline::before {
+    left: 10px;
+  }
+  .roadmap-dot {
+    width: 12px;
+    height: 12px;
+    margin-right: 10px;
+  }
+  .roadmap-content {
+    padding: 10px;
+  }
+  .roadmap-content h3 {
+    font-size: 18px;
+  }
+  .roadmap-content li {
+    font-size: 12px;
+  }
+  #partners img {
+    width: 120px;
+  }
+}
