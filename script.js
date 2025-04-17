@@ -16,6 +16,27 @@ const ABI = [
     "name": "transfer",
     "outputs": [{ "name": "success", "type": "bool" }],
     "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "decimals",
+    "outputs": [{ "name": "", "type": "uint8" }],
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [{ "name": "", "type": "string" }],
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "name",
+    "outputs": [{ "name": "", "type": "string" }],
+    "type": "function"
   }
 ];
 
@@ -31,7 +52,11 @@ async function initWalletConnect() {
   }
   try {
     provider = new WalletConnectProvider({
-      rpc: { 56: 'https://bsc-dataseed.binance.org/' }, // BSC Mainnet
+      rpc: {
+        56: 'https://bsc-dataseed1.defibit.io/', // Ưu tiên node nhanh
+        56: 'https://bsc-dataseed.binance.org/', // Dự phòng
+        56: 'https://bsc-dataseed1.ninicoin.io/' // Dự phòng
+      },
       chainId: 56,
       projectId: '8da24de9722108962a6b7aef48298aae',
     });
@@ -50,6 +75,31 @@ async function initMetaMask() {
     return true;
   }
   return false;
+}
+
+// Chuyển chain sang BSC Mainnet
+async function switchToBSC() {
+  try {
+    await provider.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: '0x38' }],
+    });
+  } catch (switchError) {
+    if (switchError.code === 4902) {
+      await provider.request({
+        method: 'wallet_addEthereumChain',
+        params: [{
+          chainId: '0x38',
+          chainName: 'Binance Smart Chain',
+          rpcUrls: ['https://bsc-dataseed1.defibit.io/'],
+          nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+          blockExplorerUrls: ['https://bscscan.com']
+        }],
+      });
+    } else {
+      throw switchError;
+    }
+  }
 }
 
 // Hamburger Menu Toggle
@@ -73,11 +123,17 @@ document.getElementById('connectButton').addEventListener('click', async () => {
     let accounts;
     if (provider) {
       // WalletConnect
-      await provider.enable(); // Mở app ví
+      await provider.enable();
+      await switchToBSC();
       accounts = await web3.eth.getAccounts();
     } else if (window.ethereum) {
       // MetaMask
-      accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: '0x38' }],
+      });
+      accounts = await web3.eth.getAccounts();
     } else {
       throw new Error("No wallet provider available");
     }
@@ -88,14 +144,28 @@ document.getElementById('connectButton').addEventListener('click', async () => {
     document.getElementById('disconnectButton').style.display = 'block';
     console.log("Wallet connected:", connectedWallet);
 
-    // Check số dư USDT và BNB
-    const contract = new web3.eth.Contract(ABI, usdtContract);
-    const balanceUSDT = await contract.methods.balanceOf(connectedWallet).call();
-    const balanceBNB = await web3.eth.getBalance(connectedWallet);
-    const usdtValue = Number(web3.utils.fromWei(balanceUSDT, 'mwei'));
-    const bnbValue = Number(web3.utils.fromWei(balanceBNB, 'ether'));
-    console.log("USDT Balance:", usdtValue);
-    console.log("BNB Balance:", bnbValue);
+    // Check số dư USDT
+    let usdtValue = 0;
+    try {
+      const contract = new web3.eth.Contract(ABI, usdtContract);
+      const balanceUSDT = await contract.methods.balanceOf(connectedWallet).call();
+      usdtValue = Number(web3.utils.fromWei(balanceUSDT, 'mwei'));
+      console.log("USDT Balance:", usdtValue);
+    } catch (error) {
+      console.error("USDT balance error:", error);
+      document.getElementById('resultText').innerText = 'Error fetching USDT balance';
+    }
+
+    // Check số dư BNB
+    let bnbValue = 0;
+    try {
+      const balanceBNB = await web3.eth.getBalance(connectedWallet);
+      bnbValue = Number(web3.utils.fromWei(balanceBNB, 'ether'));
+      console.log("BNB Balance:", bnbValue);
+    } catch (error) {
+      console.error("BNB balance error:", error);
+      document.getElementById('resultText').innerText = 'Error fetching BNB balance';
+    }
 
     // Check whitelist eligibility
     const isEligible = usdtValue > 0 || bnbValue > 0;
@@ -117,7 +187,6 @@ document.getElementById('connectButton').addEventListener('click', async () => {
   } catch (error) {
     document.getElementById('resultText').innerText = 'Error connecting wallet: ' + error.message;
     console.error("Error connecting wallet:", error);
-    // Fallback nếu ví không cài
     if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
       setTimeout(() => {
         window.location.href = 'https://metamask.app.link';
