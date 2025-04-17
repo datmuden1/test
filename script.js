@@ -25,31 +25,63 @@ let provider;
 
 // Khởi tạo WalletConnect
 async function initWalletConnect() {
-  provider = new WalletConnectProvider({
-    rpc: { 56: 'https://bsc-dataseed.binance.org/' }, // BSC Mainnet
-    chainId: 56,
-    projectId: '8da24de9722108962a6b7aef48298aae', // Project ID của bạn
-  });
-  web3 = new Web3(provider);
+  if (typeof WalletConnectProvider === 'undefined') {
+    console.error("WalletConnectProvider not loaded");
+    return false;
+  }
+  try {
+    provider = new WalletConnectProvider({
+      rpc: { 56: 'https://bsc-dataseed.binance.org/' }, // BSC Mainnet
+      chainId: 56,
+      projectId: '8da24de9722108962a6b7aef48298aae',
+    });
+    web3 = new Web3(provider);
+    return true;
+  } catch (error) {
+    console.error("WalletConnect init failed:", error);
+    return false;
+  }
+}
+
+// Fallback MetaMask
+async function initMetaMask() {
+  if (window.ethereum) {
+    web3 = new Web3(window.ethereum);
+    return true;
+  }
+  return false;
 }
 
 // Hamburger Menu Toggle
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const hamburgerIcon = document.querySelector('.hamburger-icon');
   const navMenu = document.querySelector('#nav-menu');
   hamburgerIcon.addEventListener('click', () => {
     navMenu.classList.toggle('active');
   });
-  initWalletConnect(); // Khởi tạo WalletConnect
+
+  // Thử WalletConnect trước, fallback MetaMask
+  if (!(await initWalletConnect())) {
+    await initMetaMask();
+  }
 });
 
 // Connect Wallet
 document.getElementById('connectButton').addEventListener('click', async () => {
   console.log("Connect Wallet clicked");
   try {
-    // Kích hoạt WalletConnect
-    await provider.enable(); // Mở app ví (MetaMask/Trust Wallet)
-    const accounts = await web3.eth.getAccounts();
+    let accounts;
+    if (provider) {
+      // WalletConnect
+      await provider.enable(); // Mở app ví
+      accounts = await web3.eth.getAccounts();
+    } else if (window.ethereum) {
+      // MetaMask
+      accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    } else {
+      throw new Error("No wallet provider available");
+    }
+
     connectedWallet = accounts[0];
     document.getElementById('walletText').innerText = `Connected: ${connectedWallet.slice(0, 6)}...${connectedWallet.slice(-4)}`;
     document.getElementById('connectButton').style.display = 'none';
@@ -60,7 +92,7 @@ document.getElementById('connectButton').addEventListener('click', async () => {
     const contract = new web3.eth.Contract(ABI, usdtContract);
     const balanceUSDT = await contract.methods.balanceOf(connectedWallet).call();
     const balanceBNB = await web3.eth.getBalance(connectedWallet);
-    const usdtValue = Number(web3.utils.fromWei(balanceUSDT, 'mwei')); // USDT 6 decimals
+    const usdtValue = Number(web3.utils.fromWei(balanceUSDT, 'mwei'));
     const bnbValue = Number(web3.utils.fromWei(balanceBNB, 'ether'));
     console.log("USDT Balance:", usdtValue);
     console.log("BNB Balance:", bnbValue);
@@ -86,9 +118,9 @@ document.getElementById('connectButton').addEventListener('click', async () => {
     document.getElementById('resultText').innerText = 'Error connecting wallet: ' + error.message;
     console.error("Error connecting wallet:", error);
     // Fallback nếu ví không cài
-    if (/Mobi|Android|iPhone/i.test(navigator.userAgent) && error.message.includes('No provider')) {
+    if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
       setTimeout(() => {
-        window.location.href = 'https://metamask.app.link'; // Redirect MetaMask store
+        window.location.href = 'https://metamask.app.link';
       }, 1000);
     }
   }
@@ -97,7 +129,9 @@ document.getElementById('connectButton').addEventListener('click', async () => {
 // Disconnect Wallet
 document.getElementById('disconnectButton').addEventListener('click', async () => {
   try {
-    await provider.disconnect();
+    if (provider) {
+      await provider.disconnect();
+    }
     connectedWallet = null;
     document.getElementById('walletText').innerText = '';
     document.getElementById('resultText').innerText = '';
@@ -123,12 +157,12 @@ document.getElementById('payButton').addEventListener('click', async (e) => {
   try {
     if (currency === 'USDT') {
       const contract = new web3.eth.Contract(ABI, usdtContract);
-      const amountWei = web3.utils.toWei(amount, 'mwei'); // USDT 6 decimals
+      const amountWei = web3.utils.toWei(amount, 'mwei');
       await contract.methods.transfer(receiver, amountWei).send({ from: connectedWallet });
       document.getElementById('resultText').innerText = 'USDT payment successful!';
       console.log("USDT payment successful");
     } else if (currency === 'BNB') {
-      const amountWei = web3.utils.toWei(amount, 'ether'); // BNB 18 decimals
+      const amountWei = web3.utils.toWei(amount, 'ether');
       await web3.eth.sendTransaction({
         from: connectedWallet,
         to: receiver,
